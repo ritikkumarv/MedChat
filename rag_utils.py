@@ -18,7 +18,7 @@ AZURE_OPENAI_DEPLOYMENT = st.secrets["AZURE_OPENAI_DEPLOYMENT"]  # Name of the d
 openai.api_type = "azure"
 openai.api_base = AZURE_OPENAI_ENDPOINT
 openai.api_key = AZURE_OPENAI_API_KEY
-openai.api_version = "2023-05-15"  # or newer, depending on your deployment
+openai.api_version = "2025-01-01-preview"  # or newer, depending on your deployment
  
 # Azure Search client
 search_client = SearchClient(
@@ -56,14 +56,18 @@ Knowledge base:
 User: {user_query}
 Assistant:"""
  
-    response = openai.Completion.create(
-        engine=AZURE_OPENAI_DEPLOYMENT,
-        prompt=prompt,
-        temperature=0.4,
-        max_tokens=256
-    )
+    response = openai.ChatCompletion.create(
+    engine=AZURE_OPENAI_DEPLOYMENT,
+    messages=[
+        {"role": "system", "content": "You are a helpful medical assistant."},
+        {"role": "user", "content": prompt}
+    ],
+    temperature=0.5,
+    max_tokens=256
+   )
+
  
-    answer = response.choices[0].text.strip()
+    answer = response['choices'][0]['message']['content'].strip()
     chat_history.append(f"User: {user_query}")
     chat_history.append(f"Assistant: {answer}")
     return answer
