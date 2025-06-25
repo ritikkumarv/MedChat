@@ -54,7 +54,7 @@ def generate_chat_response(user_query):
             {"role": "user", "content": user_query}
         ],
         temperature=0.5,
-        max_tokens=256
+        max_tokens=2000
     )
 
     answer = response.choices[0].message.content.strip()
