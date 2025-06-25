@@ -12,7 +12,7 @@ AZURE_SEARCH_INDEX = "med_chat_index"
 
 AZURE_OPENAI_ENDPOINT = st.secrets["AZURE_OPENAI_ENDPOINT"]
 AZURE_OPENAI_API_KEY = st.secrets["AZURE_OPENAI_API_KEY"]
-AZURE_OPENAI_DEPLOYMENT = st.secrets["AZURE_OPENAI_DEPLOYMENT"]  # Name of the deployed model, not the model id!
+AZURE_OPENAI_DEPLOYMENT = st.secrets["AZURE_OPENAI_DEPLOYMENT"]
 
 # Configure Azure OpenAI client
 client = AzureOpenAI(
@@ -46,22 +46,12 @@ def generate_chat_response(user_query):
     context = retrieve_documents(user_query)
     history_text = "\n".join(chat_history[-4:])  # last 4 lines of convo
 
-    prompt = f"""You are a helpful medical assistant. Use the following history and knowledge base to answer the question.
-
-Conversation so far:
-{history_text}
-
-Knowledge base:
-{context}
-
-User: {user_query}
-Assistant:"""
-
     response = client.chat.completions.create(
         model=AZURE_OPENAI_DEPLOYMENT,
         messages=[
-            {"role": "system", "content": "You are a helpful medical assistant."},
-            {"role": "user", "content": prompt}
+            {"role": "system", "content": "You are a helpful medical assistant. Use the provided knowledge base to answer user questions accurately."},
+            {"role": "system", "content": f"Knowledge base:\n{context}"},
+            {"role": "user", "content": user_query}
         ],
         temperature=0.5,
         max_tokens=256
